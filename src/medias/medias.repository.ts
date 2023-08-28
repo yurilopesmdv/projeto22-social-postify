@@ -24,7 +24,7 @@ export class MediasRepository {
 
   async readMediaId(id: number) {
     const media = await this.prisma.media.findFirst({
-      where: { id: Number(id) },
+      where: { id: id },
     });
     return media;
   }

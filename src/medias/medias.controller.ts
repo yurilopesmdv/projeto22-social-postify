@@ -7,13 +7,13 @@ import { CreateMediaDto } from './dto/create-media.dto';
 export class MediasController {
   constructor(private readonly mediasService: MediasService) {}
 
-  @Post('/')
+  @Post()
   @HttpCode(201)
   create(@Body() createMediaDto: CreateMediaDto) {
     return this.mediasService.create(createMediaDto);
   }
 
-  @Get('/')
+  @Get()
   @HttpCode(200)
   findAll() {
     return this.mediasService.findAll();

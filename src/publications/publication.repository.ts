@@ -17,7 +17,7 @@ export class PublicationsRepository {
 
   async readPublicationId(id: number) {
     const publication = await this.prisma.publication.findUnique({
-      where: { id: Number(id) },
+      where: { id: id },
     });
     return publication;
   }

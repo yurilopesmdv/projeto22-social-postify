@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { PublicationsService } from './publications.service';
 import { PublicationsController } from './publications.controller';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma.module';
 import { PublicationsRepository } from './publication.repository';
-import { PostsRepository } from 'src/posts/posts.repository';
-import { MediasRepository } from 'src/medias/medias.repository';
+import { PostsRepository } from '../posts/posts.repository';
+import { MediasRepository } from '../medias/medias.repository';
 
 @Module({
   imports: [PrismaModule],
