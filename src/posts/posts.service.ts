@@ -1,26 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import { PostsRepository } from './posts.repository';
 
 @Injectable()
 export class PostsService {
-  create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+  constructor(private readonly postsRepository: PostsRepository) {}
+  async create(data: CreatePostDto) {
+    if (!data.title || !data.text)
+      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+    await this.postsRepository.createPost(data);
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  async findAll() {
+    return await this.postsRepository.readPosts();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: number) {
+    const post = await this.postsRepository.readPostId(+id);
+    if (!post) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    return post;
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: number, data: CreatePostDto) {
+    if (!data.title || !data.text)
+      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+    const postExists = await this.postsRepository.readPostId(+id);
+    if (!postExists) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    const post = await this.postsRepository.updatePostId(+id, data);
+    return post;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: number) {
+    const postExists = await this.postsRepository.readPostId(+id);
+    if (!postExists) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    return await this.postsRepository.deletePostId(+id);
   }
 }

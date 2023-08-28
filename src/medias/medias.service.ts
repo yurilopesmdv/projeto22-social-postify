@@ -1,26 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateMediaDto } from './dto/create-media.dto';
-import { UpdateMediaDto } from './dto/update-media.dto';
+import { MediasRepository } from './medias.repository';
 
 @Injectable()
 export class MediasService {
-  create(createMediaDto: CreateMediaDto) {
-    return 'This action adds a new media';
+  constructor(private readonly mediasRepository: MediasRepository) {}
+  async create(data: CreateMediaDto) {
+    if (!data.title || !data.username)
+      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+    const media = await this.mediasRepository.readMedia(data);
+    if (media) throw new HttpException('Conflict', HttpStatus.CONFLICT);
+    await this.mediasRepository.createMedia(data);
   }
 
-  findAll() {
-    return `This action returns all medias`;
+  async findAll() {
+    return await this.mediasRepository.readMedias();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} media`;
+  async findOne(id: number) {
+    const media = await this.mediasRepository.readMediaId(id);
+    if (!media) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    return media;
   }
 
-  update(id: number, updateMediaDto: UpdateMediaDto) {
-    return `This action updates a #${id} media`;
+  async update(id: number, data: CreateMediaDto) {
+    const mediaExists = await this.mediasRepository.readMediaId(id);
+    if (!mediaExists)
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    const conflictExists = await this.mediasRepository.readMedia(data);
+    if (conflictExists)
+      throw new HttpException('Conflict', HttpStatus.CONFLICT);
+    const media = await this.mediasRepository.updateMediaId(+id, data);
+    return media;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} media`;
+  async remove(id: number) {
+    const mediaExists = await this.mediasRepository.readMediaId(id);
+    if (!mediaExists)
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    return await this.mediasRepository.deleteMediaId(+id);
   }
 }
